@@ -1,0 +1,58 @@
+# Lambda deployment packages
+*.zip
+
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Node modules
+node_modules/
+
+# Build outputs
+frontend/out/
+frontend/.next/
+frontend/build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# UV lock files (optional - some teams commit these, some don't)
+# Uncomment if you want to ignore them:
+# uv.lock
+
+# AWS credentials (if any)
+*.pem
+credentials
+config
+aurora_config.json
+

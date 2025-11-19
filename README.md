@@ -1,4 +1,4 @@
-# Alex - the Agentic Learning Equities Explainer
+# PostLo AI Financial Advisor
 
 ## Multi-agent Enterprise-Grade SaaS Financial Planner
 
