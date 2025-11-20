@@ -58,4 +58,6 @@ aurora_config.json
 
 # Documentation (keep locally, don't commit)
 guides/
+*.md
+!README.md
 

@@ -122,8 +122,7 @@ The platform employs a sophisticated multi-agent system where specialized AI age
 ### Project Structure
 
 ```
-alex/
-├── guides/              # Deployment guides and architecture documentation
+ai-financial-advisor/
 ├── backend/             # Agent code and Lambda functions
 │   ├── planner/         # Orchestrator agent
 │   ├── tagger/          # Instrument classification agent
