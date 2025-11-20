@@ -13,7 +13,7 @@ export default function Home() {
       <nav className="px-8 py-6 bg-white shadow-sm">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="text-2xl font-bold text-dark">
-            Alex <span className="text-primary">AI Financial Advisor</span>
+            PostLo <span className="text-primary">AI Financial Advisor</span>
           </div>
           <div className="flex gap-4">
             <SignedOut>

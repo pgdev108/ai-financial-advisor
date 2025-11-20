@@ -32,7 +32,7 @@ export default function Layout({ children }: LayoutProps) {
               <div className="flex items-center gap-8">
                 <Link href="/dashboard" className="flex items-center">
                   <h1 className="text-xl font-bold text-dark">
-                    Alex <span className="text-primary">AI Financial Advisor</span>
+                    PostLo <span className="text-primary">AI Financial Advisor</span>
                   </h1>
                 </Link>
 

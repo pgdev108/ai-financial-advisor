@@ -134,11 +134,12 @@ export default function Accounts() {
         setMessage({ type: 'success', text: data.message });
         await loadAccounts(); // Reload accounts after population
       } else {
-        setMessage({ type: 'error', text: 'Failed to populate test data' });
+        const errorData = await response.json().catch(() => ({ detail: 'Failed to populate test data' }));
+        setMessage({ type: 'error', text: errorData.detail || 'Failed to populate test data' });
       }
     } catch (error) {
       console.error('Error populating test data:', error);
-      setMessage({ type: 'error', text: 'Error populating test data' });
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Error populating test data' });
     } finally {
       setPopulatingData(false);
     }
