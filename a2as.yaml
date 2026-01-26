@@ -1,0 +1,1103 @@
+manifest:
+  version: "0.1.2"
+  schema: https://a2as.org/cert/schema
+  subject:
+    name: pgdev108/ai-financial-advisor
+    source: https://github.com/pgdev108/ai-financial-advisor
+    branch: main
+    commit: "62554dca"
+    scope: [backend/api/main.py, backend/charter/agent.py, backend/charter/lambda_handler.py, backend/charter/observability.py,
+      backend/charter/templates.py, backend/database/src/models.py, backend/database/src/schemas.py, backend/database/verify_database.py,
+      backend/planner/agent.py, backend/planner/lambda_handler.py, backend/planner/market.py, backend/planner/observability.py,
+      backend/planner/templates.py, backend/reporter/agent.py, backend/reporter/judge.py, backend/reporter/lambda_handler.py,
+      backend/reporter/observability.py, backend/reporter/templates.py, backend/researcher/context.py, backend/researcher/mcp_servers.py,
+      backend/researcher/server.py, backend/researcher/tools.py, backend/retirement/agent.py, backend/retirement/lambda_handler.py,
+      backend/retirement/observability.py, backend/retirement/templates.py, backend/tagger/agent.py, backend/tagger/templates.py,
+      scripts/deploy.py]
+  issued:
+    by: A2AS.org
+    at: '2026-01-26T16:10:43Z'
+  signatures:
+    digest: sha256:zFLXZEfCDC8yZMZ54UFnt2pB_OOFD25-wUrrRDb_ioE
+    key: ed25519:p35A6VQ6ZFG9Md2DhXxp6MwilOCuG4jNiXJyp5fJEFg
+    sig: ed25519:oRbonqKyqIxyIaV9GMo7_1EdZjZD1TfKGxG_wNbqjecd8t1d4L1zCbpsalwlb9iArMQ3TUSGgYtfsIZk-v3-CA
+
+agents:
+  agent.0:
+    type: instance
+    models: [model]
+    tools: [tools]
+    params:
+      function: run_orchestrator
+      name: Financial Planner
+      instance: agent
+      instructions: [You coordinate portfolio analysis by calling other agents., 'Tools (use ONLY these three):', '- invoke_reporter:
+          Generates analysis text', '- invoke_charter: Creates charts', '- invoke_retirement: Calculates retirement projections',
+        'Steps:', 1. Call invoke_reporter if positions > 0, 2. Call invoke_charter if positions >= 2, 3. Call invoke_retirement
+          if retirement goals exist, 4. Respond with "Done", Use ONLY the three tools above.]
+  agent.1:
+    type: instance
+    models: [model]
+    params:
+      function: evaluate
+      name: Judge Agent
+      output_type: Evaluation
+      instance: agent
+      instructions: [You are an Evaluation Agent that evaluates the quality of a financial report from a financial planning
+          agent., 'You will be provided with the instructions that were sent to the analyst, and its output, and you must
+          evaluate the quality of the output.']
+  agent.2:
+    type: instance
+    models: [model]
+    tools: [tools]
+    params:
+      function: run_retirement_agent
+      name: Retirement Specialist
+      instance: agent
+      instructions: [You are a Retirement Specialist Agent focusing on long-term financial planning and retirement projections.,
+        'Your role is to:', 1. Project retirement income based on current portfolio, 2. Run Monte Carlo simulations for success
+          probability, 3. Calculate safe withdrawal rates, 4. Analyze portfolio sustainability, 5. Provide retirement readiness
+          recommendations, 'Key Analysis Areas:', 1. Retirement Income Projections, '- Expected portfolio value at retirement',
+        '- Annual income potential', '- Inflation-adjusted calculations', 2. Monte Carlo Analysis, '- Success probability
+          under various market conditions', '- Best case / worst case scenarios', '- Risk of portfolio depletion', 3. Withdrawal
+          Strategy, '- Safe withdrawal rate (SWR) analysis', '- Dynamic withdrawal strategies', '- Tax-efficient withdrawal
+          sequencing', 4. Gap Analysis, '- Current trajectory vs. target income', '- Required savings rate adjustments', '-
+          Portfolio rebalancing needs', 5. Risk Factors, '- Longevity risk', '- Inflation impact', '- Healthcare costs', '-
+          Market sequence risk', 'Provide clear, actionable insights with specific numbers and timelines.', Use conservative
+          assumptions to ensure realistic projections., Consider multiple scenarios to show range of outcomes.]
+  agent.3:
+    type: instance
+    models: [model]
+    tools: [tools]
+    params:
+      function: run_reporter_agent
+      name: Report Writer
+      instance: agent
+      instructions: [You are a Report Writer Agent specializing in portfolio analysis and financial narrative generation.,
+        Your primary task is to analyze the provided portfolio and generate a comprehensive markdown report., 'You have access
+          to this tool:', 1. get_market_insights - Retrieve relevant market context for specific symbols, 'Your workflow:',
+        '1. First, analyze the portfolio data provided', 2. Use get_market_insights to get relevant market context for the
+          holdings, '3. Generate a comprehensive analysis report in markdown format covering:', '- Executive Summary (3-4
+          key points)', '- Portfolio Composition Analysis', '- Diversification Assessment', '- Risk Profile Evaluation', '-
+          Retirement Readiness', '- Specific Recommendations (5-7 actionable items)', '- Conclusion', 4. Respond with your
+          complete analysis in clear markdown format., 'Report Guidelines:', '- Write in clear, professional language accessible
+          to retail investors', '- Use markdown formatting with headers, bullets, and emphasis', '- Include specific percentages
+          and numbers where relevant', '- Focus on actionable insights, not just observations', '- Prioritize recommendations
+          by impact', '- Keep sections concise but comprehensive']
+  agent.4:
+    type: instance
+    models: [model]
+    params:
+      function: run_charter_agent
+      name: Chart Maker
+      instance: agent
+      instructions: [You are a Chart Maker Agent that creates visualization data for investment portfolios., Your task is
+          to analyze the portfolio and output a JSON object containing 4-6 charts that tell a compelling story about the portfolio.,
+        You must output ONLY valid JSON in the exact format shown below. Do not include any text before or after the JSON.,
+        'REQUIRED JSON FORMAT:', '{', '"charts": [', '{', '"key": "asset_class_distribution",', '"title": "Asset Class Distribution",',
+        '"type": "pie",', '"description": "Shows the distribution of asset classes in the portfolio",', '"data": [', '{"name":
+          "Equity", "value": 146365.00, "color": "#3B82F6"},', '{"name": "Fixed Income", "value": 29000.00, "color": "#10B981"},',
+        '{"name": "Real Estate", "value": 14500.00, "color": "#F59E0B"},', '{"name": "Cash", "value": 5000.00, "color": "#EF4444"}',
+        ']', '}', ']', '}', 'IMPORTANT RULES:', '1. Output ONLY the JSON object, nothing else', '2. Each chart must have:
+          key, title, type, description, and data array', '3. Chart types: ''pie'', ''bar'', ''donut'', or ''horizontalBar''',
+        4. Values must be dollar amounts (not percentages - Recharts calculates those), 5. Colors must be hex format like
+          '#3B82F6', 6. Create 4-6 different charts from different perspectives, 'CHART IDEAS TO IMPLEMENT:', '- Asset class
+          distribution (equity vs bonds vs alternatives)', '- Geographic exposure (North America, Europe, Asia, etc.)', '-
+          Sector breakdown (Technology, Healthcare, Financials, etc.)', '- Account type allocation (401k, IRA, Taxable, etc.)',
+        '- Top holdings concentration (largest 5-10 positions)', '- Tax efficiency (tax-advantaged vs taxable accounts)',
+        'EXAMPLE OUTPUT (this is what you should generate):', '{', '"charts": [', '{', '"key": "asset_allocation",', '"title":
+          "Asset Class Distribution",', '"type": "pie",', '"description": "Portfolio allocation across major asset classes",',
+        '"data": [', '{"name": "Equities", "value": 65900.50, "color": "#3B82F6"},', '{"name": "Bonds", "value": 14100.25,
+          "color": "#10B981"},', '{"name": "Real Estate", "value": 9400.00, "color": "#F59E0B"},', '{"name": "Cash", "value":
+          4600.00, "color": "#6B7280"}', ']', '},', '{', '"key": "geographic_exposure",', '"title": "Geographic Distribution",',
+        '"type": "bar",', '"description": "Investment allocation by region",', '"data": [', '{"name": "North America", "value":
+          56340.00, "color": "#6366F1"},', '{"name": "Europe", "value": 18780.00, "color": "#14B8A6"},', '{"name": "Asia Pacific",
+          "value": 14100.00, "color": "#F97316"},', '{"name": "Emerging Markets", "value": 4700.00, "color": "#EC4899"}',
+        ']', '},', '{', '"key": "sector_breakdown",', '"title": "Sector Allocation",', '"type": "donut",', '"description":
+          "Distribution across industry sectors",', '"data": [', '{"name": "Technology", "value": 28200.00, "color": "#8B5CF6"},',
+        '{"name": "Healthcare", "value": 14100.00, "color": "#059669"},', '{"name": "Financials", "value": 14100.00, "color":
+          "#0891B2"},', '{"name": "Consumer", "value": 18800.00, "color": "#DC2626"},', '{"name": "Industrials", "value":
+          18800.00, "color": "#7C3AED"}', ']', '},', '{', '"key": "account_types",', '"title": "Account Distribution",', '"type":
+          "pie",', '"description": "Allocation across different account types",', '"data": [', '{"name": "401(k)", "value":
+          45000.00, "color": "#10B981"},', '{"name": "Roth IRA", "value": 28000.00, "color": "#3B82F6"},', '{"name": "Taxable",
+          "value": 20920.75, "color": "#F59E0B"}', ']', '},', '{', '"key": "top_holdings",', '"title": "Top 5 Holdings",',
+        '"type": "horizontalBar",', '"description": "Largest positions in the portfolio",', '"data": [', '{"name": "SPY",
+          "value": 23500.00, "color": "#3B82F6"},', '{"name": "QQQ", "value": 14100.00, "color": "#60A5FA"},', '{"name": "BND",
+          "value": 9400.00, "color": "#93C5FD"},', '{"name": "VTI", "value": 7050.00, "color": "#BFDBFE"},', '{"name": "VXUS",
+          "value": 4700.00, "color": "#DBEAFE"}', ']', '}', ']', '}', 'Remember: Output ONLY the JSON object. No explanations,
+          no text before or after.']
+  agent.5:
+    type: instance
+    models: [model]
+    tools: [ingest_financial_document]
+    mcp: [playwright_mcp]
+    params:
+      function: run_research_agent
+      name: Alex Investment Researcher
+      instance: agent
+      instructions: [get_agent_instructions()]
+  agent.6:
+    type: instance
+    models: [model]
+    params:
+      function: test_bedrock
+      name: Test Agent
+      instance: agent
+      instructions: [You are a helpful assistant. Be very brief.]
+  agent.7:
+    type: instance
+    models: [model]
+    params:
+      function: classify_instrument
+      name: InstrumentTagger
+      output_type: InstrumentClassification
+      instance: agent
+      instructions: ['You are an expert financial instrument classifier responsible for categorizing ETFs, stocks, and other
+          securities.', 'Your task is to accurately classify financial instruments by providing:', 1. Current market price
+          per share in USD, '2. Exact allocation percentages for:', '- Asset classes (equity, fixed_income, real_estate, commodities,
+          cash, alternatives)', '- Regions (north_america, europe, asia, etc.)', '- Sectors (technology, healthcare, financials,
+          etc.)', 'Important rules:', '- Each allocation category MUST sum to exactly 100.0', '- Use your knowledge of the
+          instrument to provide accurate allocations', '- For ETFs, consider the underlying holdings', '- For individual stocks,
+          allocate 100% to the appropriate categories', '- Be precise with decimal values to ensure totals equal 100.0', 'Examples:',
+        '- SPY (S&P 500 ETF): 100% equity, 100% north_america, distributed across sectors based on S&P 500 composition', '-
+          BND (Bond ETF): 100% fixed_income, 100% north_america, split between treasury and corporate', '- AAPL (Apple stock):
+          100% equity, 100% north_america, 100% technology', '- VTI (Total Market): 100% equity, 100% north_america, diverse
+          sector allocation', '- VXUS (International): 100% equity, distributed across regions, diverse sectors', You must
+          return your response as a structured InstrumentClassification object with all fields properly populated.]
+
+models:
+  model:
+    type: variable
+    agents: [agent.0, agent.1, agent.2, agent.3, agent.4, agent.5, agent.6, agent.7]
+
+tools:
+  get_market_insights:
+    type: decorator
+    params:
+      description: |-
+        Retrieve market insights from S3 Vectors knowledge base.
+
+        Args:
+            wrapper: Context wrapper with job_id and database
+            symbols: List of symbols to get insights for
+
+        Returns:
+            Relevant market context and insights
+  ingest_financial_document:
+    type: decorator
+    agents: [agent.5]
+    params:
+      description: |-
+        Ingest a financial document into the Alex knowledge base.
+
+        Args:
+            topic: The topic or subject of the analysis (e.g., "AAPL Stock Analysis", "Retirement Planning Guide")
+            analysis: Detailed analysis or advice with specific data and insights
+
+        Returns:
+            Dictionary with success status and document ID
+  invoke_charter:
+    type: decorator
+    params:
+      description: Invoke the Chart Maker agent to create portfolio visualizations.
+  invoke_reporter:
+    type: decorator
+    params:
+      description: Invoke the Report Writer agent to generate portfolio analysis narrative.
+  invoke_retirement:
+    type: decorator
+    params:
+      description: Invoke the Retirement Specialist agent for retirement projections.
+  tools:
+    type: variable
+    agents: [agent.0, agent.2, agent.3]
+    params:
+      dynamic: "True"
+
+mcp:
+  playwright_mcp:
+    type: process
+    agents: [agent.5]
+    params:
+      dynamic: "True"
+
+imports:
+  AccountCreate: src.schemas.AccountCreate
+  AccountType: schemas.AccountType
+  Agent: agents.Agent
+  Any: typing.Any
+  app: api.main.app
+  argparse: argparse
+  AssetClassType: schemas.AssetClassType
+  asyncio: asyncio
+  BaseModel: pydantic.BaseModel
+  boto3: boto3
+  CHARTER_INSTRUCTIONS: templates.CHARTER_INSTRUCTIONS
+  CLASSIFICATION_PROMPT: templates.CLASSIFICATION_PROMPT
+  classification_to_db_format: agent.classification_to_db_format
+  ClerkConfig: fastapi_clerk_auth.ClerkConfig
+  ClerkHTTPBearer: fastapi_clerk_auth.ClerkHTTPBearer
+  ClientError: botocore.exceptions.ClientError
+  ConfigDict: pydantic.ConfigDict
+  contextmanager: contextlib.contextmanager
+  CORSMiddleware: fastapi.middleware.cors.CORSMiddleware
+  create_agent: agent.create_agent
+  create_charter_task: templates.create_charter_task
+  create_playwright_mcp_server: mcp_servers.create_playwright_mcp_server
+  DataAPIClient: client.DataAPIClient
+  Database: src.Database
+  dataclass: dataclasses.dataclass
+  date: datetime.date
+  datetime: datetime.datetime
+  Decimal: decimal.Decimal
+  DEFAULT_RESEARCH_PROMPT: context.DEFAULT_RESEARCH_PROMPT
+  Depends: fastapi.Depends
+  Dict: typing.Dict
+  evaluate: judge.evaluate
+  FastAPI: fastapi.FastAPI
+  Field: pydantic.Field
+  field_validator: pydantic.field_validator
+  function_tool: agents.function_tool
+  get_agent_instructions: context.get_agent_instructions
+  get_client: langfuse.get_client
+  get_share_price: prices.get_share_price
+  glob: glob
+  handle_missing_instruments: agent.handle_missing_instruments
+  HTTPAuthorizationCredentials: fastapi_clerk_auth.HTTPAuthorizationCredentials
+  HTTPException: fastapi.HTTPException
+  httpx: httpx
+  ingest_financial_document: tools.ingest_financial_document
+  InstrumentCreate: src.schemas.InstrumentCreate
+  InstrumentResponse: schemas.InstrumentResponse
+  InstrumentType: schemas.InstrumentType
+  JobCreate: src.schemas.JobCreate
+  JobStatus: src.schemas.JobStatus
+  JobType: src.schemas.JobType
+  JobUpdate: src.schemas.JobUpdate
+  json: json
+  JSONResponse: fastapi.responses.JSONResponse
+  List: typing.List
+  LitellmModel: agents.extensions.models.litellm_model.LitellmModel
+  Literal: typing.Literal
+  load_dotenv: dotenv.load_dotenv
+  load_portfolio_summary: agent.load_portfolio_summary
+  logfire: logfire
+  logging: logging
+  lru_cache: functools.lru_cache
+  Mangum: mangum.Mangum
+  MCPServerStdio: agents.mcp.MCPServerStdio
+  observe: observability.observe
+  Optional: typing.Optional
+  ORCHESTRATOR_INSTRUCTIONS: templates.ORCHESTRATOR_INSTRUCTIONS
+  os: os
+  Path: pathlib.Path
+  PlannerContext: agent.PlannerContext
+  PortfolioAnalysis: schemas.PortfolioAnalysis
+  PositionCreate: src.schemas.PositionCreate
+  random: random
+  RateLimitError: litellm.exceptions.RateLimitError
+  RebalanceRecommendation: schemas.RebalanceRecommendation
+  RegionType: schemas.RegionType
+  REPORTER_INSTRUCTIONS: templates.REPORTER_INSTRUCTIONS
+  ReporterContext: agent.ReporterContext
+  Request: fastapi.Request
+  RESTClient: polygon.RESTClient
+  RETIREMENT_INSTRUCTIONS: templates.RETIREMENT_INSTRUCTIONS
+  retry: tenacity.retry
+  retry_if_exception_type: tenacity.retry_if_exception_type
+  RunContextWrapper: agents.RunContextWrapper
+  Runner: agents.Runner
+  SectorType: schemas.SectorType
+  Set: typing.Set
+  status: fastapi.status
+  stop_after_attempt: tenacity.stop_after_attempt
+  subprocess: subprocess
+  sys: sys
+  tag_instruments: agent.tag_instruments
+  TAGGER_INSTRUCTIONS: templates.TAGGER_INSTRUCTIONS
+  time: time
+  timezone: datetime.timezone
+  trace: agents.trace
+  traceback: traceback
+  update_instrument_prices: market.update_instrument_prices
+  UserCreate: src.schemas.UserCreate
+  UTC: datetime.UTC
+  uuid: uuid
+  uvicorn: uvicorn
+  ValidationError: pydantic.ValidationError
+  wait_exponential: tenacity.wait_exponential
+
+functions:
+  __init__:
+    type: sync
+    module: backend.database.src.models
+    args: [self, cluster_arn, secret_arn, database, region]
+  _ingest:
+    type: sync
+    module: backend.researcher.tools
+    args: [document]
+    params:
+      returns: Dict
+  add_position:
+    type: sync
+    module: backend.database.src.models
+    args: [self, account_id, symbol, quantity]
+    params:
+      returns: str
+  analyze_portfolio:
+    type: sync
+    module: backend.charter.agent
+    args: [portfolio_data]
+    params:
+      returns: str
+  build_frontend:
+    type: sync
+    module: scripts.deploy
+    args: [api_url]
+  calculate_asset_allocation:
+    type: sync
+    module: backend.retirement.agent
+    args: [portfolio_data]
+    params:
+      returns: Dict
+  calculate_portfolio_metrics:
+    type: sync
+    module: backend.reporter.agent
+    args: [portfolio_data]
+    params:
+      returns: Dict
+  calculate_portfolio_value:
+    type: sync
+    module: backend.retirement.agent
+    args: [portfolio_data]
+    params:
+      returns: float
+  check_prerequisites:
+    type: sync
+    module: scripts.deploy
+  classification_to_db_format:
+    type: sync
+    module: backend.tagger.agent
+    args: [classification]
+    params:
+      returns: InstrumentCreate
+  classify_instrument:
+    type: async
+    module: backend.tagger.agent
+    args: [symbol, name, instrument_type]
+    params:
+      returns: InstrumentClassification
+  classify_with_retry:
+    type: async
+    module: backend.tagger.agent
+    args: [symbol, name, instrument_type]
+  create:
+    type: sync
+    module: backend.database.src.models
+    args: [self, data, returning]
+    params:
+      returns: str
+  create_account:
+    type: async
+    module: backend.api.main
+    args: [account, clerk_user_id]
+  create_agent:
+    type: sync
+    module: backend.reporter.agent
+    args: [job_id, portfolio_data, user_data, db]
+  create_charter_task:
+    type: sync
+    module: backend.charter.templates
+    args: [portfolio_analysis, portfolio_data]
+    params:
+      returns: str
+  create_instrument:
+    type: sync
+    module: backend.database.src.models
+    args: [self, instrument]
+    params:
+      returns: str
+  create_job:
+    type: sync
+    module: backend.database.src.models
+    args: [self, clerk_user_id, job_type, request_payload]
+    params:
+      returns: str
+  create_playwright_mcp_server:
+    type: sync
+    module: backend.researcher.mcp_servers
+    args: [timeout_seconds]
+  create_position:
+    type: async
+    module: backend.api.main
+    args: [position, clerk_user_id]
+  create_test_data:
+    type: sync
+    module: backend.database.reset_db
+    args: [db_models]
+  create_user:
+    type: sync
+    module: backend.database.src.models
+    args: [self, clerk_user_id, display_name, years_until_retirement, target_retirement_income]
+    params:
+      returns: str
+  delete:
+    type: sync
+    module: backend.database.src.models
+    args: [self, id]
+    params:
+      returns: int
+  delete_account:
+    type: async
+    module: backend.api.main
+    args: [account_id, clerk_user_id]
+  delete_position:
+    type: async
+    module: backend.api.main
+    args: [position_id, clerk_user_id]
+  deploy_terraform:
+    type: sync
+    module: scripts.deploy
+  display_deployment_info:
+    type: sync
+    module: scripts.deploy
+    args: [outputs]
+  drop_all_tables:
+    type: sync
+    module: backend.database.reset_db
+    args: [db]
+  evaluate:
+    type: async
+    module: backend.reporter.judge
+    args: [original_instructions, original_task, original_output]
+    params:
+      returns: Evaluation
+  execute_query:
+    type: sync
+    module: backend.database.verify_database
+    args: [sql, description]
+  execute_raw:
+    type: sync
+    module: backend.database.src.models
+    args: [self, sql, parameters]
+    params:
+      returns: Dict
+  find_all:
+    type: sync
+    module: backend.database.src.models
+    args: [self, limit, offset]
+    params:
+      returns: List[Dict]
+  find_by_account:
+    type: sync
+    module: backend.database.src.models
+    args: [self, account_id]
+    params:
+      returns: List[Dict]
+  find_by_clerk_id:
+    type: sync
+    module: backend.database.src.models
+    args: [self, clerk_user_id]
+    params:
+      returns: Optional[Dict]
+  find_by_id:
+    type: sync
+    module: backend.database.src.models
+    args: [self, id]
+    params:
+      returns: Optional[Dict]
+  find_by_symbol:
+    type: sync
+    module: backend.database.src.models
+    args: [self, symbol]
+    params:
+      returns: Optional[Dict]
+  find_by_type:
+    type: sync
+    module: backend.database.src.models
+    args: [self, instrument_type]
+    params:
+      returns: List[Dict]
+  find_by_user:
+    type: sync
+    module: backend.database.src.models
+    args: [self, clerk_user_id, status, limit]
+    params:
+      returns: List[Dict]
+  format_portfolio_for_analysis:
+    type: sync
+    module: backend.reporter.agent
+    args: [portfolio_data, user_data]
+    params:
+      returns: str
+  general_exception_handler:
+    type: async
+    module: backend.api.main
+    args: [request, exc]
+  generate_projections:
+    type: sync
+    module: backend.retirement.agent
+    args: [current_value, years_until_retirement, asset_allocation, current_age]
+    params:
+      returns: list
+  get_agent_instructions:
+    type: sync
+    module: backend.researcher.context
+  get_all_portfolio_symbols:
+    type: sync
+    module: backend.planner.market
+    args: [db]
+    params:
+      returns: Set[str]
+  get_all_share_prices_polygon_eod:
+    type: sync
+    module: backend.planner.prices
+    params:
+      returns: dict
+  get_current_user_id:
+    type: async
+    module: backend.api.main
+    args: [creds]
+    params:
+      returns: str
+  get_job_status:
+    type: async
+    module: backend.api.main
+    args: [job_id, clerk_user_id]
+  get_market_for_prior_date:
+    type: sync
+    module: backend.planner.prices
+    args: [today]
+  get_market_insights:
+    type: tool
+    module: backend.reporter.agent
+    args: [wrapper, symbols]
+    params:
+      returns: str
+  get_or_create_user:
+    type: async
+    module: backend.api.main
+    args: [clerk_user_id, creds]
+  get_portfolio_value:
+    type: sync
+    module: backend.database.src.models
+    args: [self, account_id]
+    params:
+      returns: Dict
+  get_share_price:
+    type: sync
+    module: backend.planner.prices
+    args: [symbol]
+    params:
+      returns: float
+  get_share_price_polygon:
+    type: sync
+    module: backend.planner.prices
+    args: [symbol]
+    params:
+      returns: float
+  get_share_price_polygon_eod:
+    type: sync
+    module: backend.planner.prices
+    args: [symbol]
+    params:
+      returns: float
+  get_share_price_polygon_min:
+    type: sync
+    module: backend.planner.prices
+    args: [symbol]
+    params:
+      returns: float
+  get_user_preferences:
+    type: sync
+    module: backend.retirement.lambda_handler
+    args: [job_id]
+    params:
+      returns: Dict
+  handle_missing_instruments:
+    type: sync
+    module: backend.planner.agent
+    args: [job_id, db]
+    params:
+      returns: None
+  health:
+    type: async
+    module: backend.researcher.server
+  health_check:
+    type: async
+    module: backend.api.main
+  http_exception_handler:
+    type: async
+    module: backend.api.main
+    args: [request, exc]
+  ingest_financial_document:
+    type: tool
+    module: backend.researcher.tools
+    args: [topic, analysis]
+    params:
+      returns: Dict
+  ingest_with_retries:
+    type: sync
+    module: backend.researcher.tools
+    args: [document]
+    params:
+      returns: Dict
+  insert_instrument:
+    type: sync
+    module: backend.database.seed_data
+    args: [instrument_data]
+  invoke_charter:
+    type: tool
+    module: backend.planner.agent
+    args: [wrapper]
+    params:
+      returns: str
+  invoke_charter_internal:
+    type: async
+    module: backend.planner.agent
+    args: [job_id]
+    params:
+      returns: str
+  invoke_lambda_agent:
+    type: async
+    module: backend.planner.agent
+    args: [agent_name, function_name, payload]
+    params:
+      returns: Dict
+  invoke_reporter:
+    type: tool
+    module: backend.planner.agent
+    args: [wrapper]
+    params:
+      returns: str
+  invoke_reporter_internal:
+    type: async
+    module: backend.planner.agent
+    args: [job_id]
+    params:
+      returns: str
+  invoke_retirement:
+    type: tool
+    module: backend.planner.agent
+    args: [wrapper]
+    params:
+      returns: str
+  invoke_retirement_internal:
+    type: async
+    module: backend.planner.agent
+    args: [job_id]
+    params:
+      returns: str
+  is_market_open:
+    type: sync
+    module: backend.planner.prices
+    params:
+      returns: bool
+  lambda_handler:
+    type: sync
+    module: backend.tagger.lambda_handler
+    args: [event, context]
+  list_accounts:
+    type: async
+    module: backend.api.main
+    args: [clerk_user_id]
+  list_instruments:
+    type: async
+    module: backend.api.main
+    args: [clerk_user_id]
+  list_jobs:
+    type: async
+    module: backend.api.main
+    args: [clerk_user_id]
+  list_positions:
+    type: async
+    module: backend.api.main
+    args: [account_id, clerk_user_id]
+  load_portfolio_summary:
+    type: sync
+    module: backend.planner.agent
+    args: [job_id, db]
+    params:
+      returns: Dict
+  main:
+    type: sync
+    module: backend.database.seed_data
+  observe:
+    type: sync
+    module: backend.charter.observability
+  package_lambda:
+    type: sync
+    module: scripts.deploy
+  populate_test_data:
+    type: async
+    module: backend.api.main
+    args: [clerk_user_id]
+  process_instruments:
+    type: async
+    module: backend.tagger.lambda_handler
+    args: [instruments]
+    params:
+      returns: Dict
+  query_raw:
+    type: sync
+    module: backend.database.src.models
+    args: [self, sql, parameters]
+    params:
+      returns: List[Dict]
+  research:
+    type: async
+    module: backend.researcher.server
+    args: [request]
+    params:
+      returns: str
+  research_auto:
+    type: async
+    module: backend.researcher.server
+  reset_accounts:
+    type: async
+    module: backend.api.main
+    args: [clerk_user_id]
+  root:
+    type: async
+    module: backend.researcher.server
+  run_charter_agent:
+    type: async
+    module: backend.charter.lambda_handler
+    args: [job_id, portfolio_data, db]
+    params:
+      returns: Dict
+  run_command:
+    type: sync
+    module: scripts.deploy
+    args: [cmd, cwd, check, capture_output, env]
+  run_monte_carlo_simulation:
+    type: sync
+    module: backend.retirement.agent
+    args: [current_value, years_until_retirement, target_annual_income, asset_allocation, num_simulations]
+    params:
+      returns: Dict
+  run_orchestrator:
+    type: async
+    module: backend.planner.lambda_handler
+    args: [job_id]
+    params:
+      returns: None
+  run_reporter_agent:
+    type: async
+    module: backend.reporter.lambda_handler
+    args: [job_id, portfolio_data, user_data, db, observability]
+    params:
+      returns: Dict
+  run_research_agent:
+    type: async
+    module: backend.researcher.server
+    args: [topic]
+    params:
+      returns: str
+  run_retirement_agent:
+    type: async
+    module: backend.retirement.lambda_handler
+    args: [job_id, portfolio_data]
+    params:
+      returns: Dict
+  search:
+    type: sync
+    module: backend.database.src.models
+    args: [self, query]
+    params:
+      returns: List[Dict]
+  tag_instruments:
+    type: async
+    module: backend.tagger.agent
+    args: [instruments]
+    params:
+      returns: List[InstrumentClassification]
+  test_bedrock:
+    type: async
+    module: backend.researcher.server
+  trigger_analysis:
+    type: async
+    module: backend.api.main
+    args: [request, clerk_user_id]
+  update:
+    type: sync
+    module: backend.database.src.models
+    args: [self, id, data]
+    params:
+      returns: int
+  update_account:
+    type: async
+    module: backend.api.main
+    args: [account_id, account_update, clerk_user_id]
+  update_charts:
+    type: sync
+    module: backend.database.src.models
+    args: [self, job_id, charts_payload]
+    params:
+      returns: int
+  update_instrument_prices:
+    type: sync
+    module: backend.planner.market
+    args: [job_id, db]
+    params:
+      returns: None
+  update_position:
+    type: async
+    module: backend.api.main
+    args: [position_id, position_update, clerk_user_id]
+  update_prices_for_symbols:
+    type: sync
+    module: backend.planner.market
+    args: [symbols, db]
+    params:
+      returns: None
+  update_report:
+    type: sync
+    module: backend.database.src.models
+    args: [self, job_id, report_payload]
+    params:
+      returns: int
+  update_retirement:
+    type: sync
+    module: backend.database.src.models
+    args: [self, job_id, retirement_payload]
+    params:
+      returns: int
+  update_status:
+    type: sync
+    module: backend.database.src.models
+    args: [self, job_id, status, error_message]
+    params:
+      returns: int
+  update_summary:
+    type: sync
+    module: backend.database.src.models
+    args: [self, job_id, summary_payload]
+    params:
+      returns: int
+  update_user:
+    type: async
+    module: backend.api.main
+    args: [user_update, clerk_user_id]
+  upload_frontend:
+    type: sync
+    module: scripts.deploy
+    args: [bucket_name, cloudfront_id]
+  validate_allocations:
+    type: sync
+    module: backend.database.src.schemas
+    args: [cls, v]
+  validate_asset_class_sum:
+    type: sync
+    module: backend.tagger.agent
+    args: [cls, v]
+  validate_regions_sum:
+    type: sync
+    module: backend.tagger.agent
+    args: [cls, v]
+  validate_sectors_sum:
+    type: sync
+    module: backend.tagger.agent
+    args: [cls, v]
+  validate_sum:
+    type: sync
+    module: backend.database.src.schemas
+    args: [cls, v]
+  validation_exception_handler:
+    type: async
+    module: backend.api.main
+    args: [request, exc]
+  verify_allocations:
+    type: sync
+    module: backend.database.seed_data
+    args: [instrument]
+
+variables:
+  ALEX_API_ENDPOINT:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.researcher.tools, backend.researcher.server]
+  ALEX_API_KEY:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.researcher.tools, backend.researcher.server]
+  AURORA_CLUSTER_ARN:
+    type: env
+    params:
+      caller: [os.environ.get]
+      path: [backend.database.verify_database, backend.database.seed_data]
+  AURORA_DATABASE:
+    type: env
+    params:
+      caller: [os.environ.get]
+      path: [backend.database.verify_database, backend.database.seed_data]
+  AURORA_SECRET_ARN:
+    type: env
+    params:
+      caller: [os.environ.get]
+      path: [backend.database.verify_database, backend.database.seed_data]
+  AWS_DEFAULT_REGION:
+    type: env
+    params:
+      caller: [os.environ, os.environ.get]
+      path: [backend.researcher.server]
+  AWS_EXECUTION_ENV:
+    type: env
+    params:
+      caller: [os.environ.get]
+      path: [backend.researcher.mcp_servers, backend.researcher.server]
+  AWS_REGION:
+    type: env
+    params:
+      caller: [os.environ, os.environ.get]
+      path: [backend.researcher.server]
+  AWS_REGION_NAME:
+    type: env
+    params:
+      caller: [os.environ, os.environ.get]
+      path: [backend.researcher.server]
+  BEDROCK_MODEL_ID:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.retirement.agent, backend.reporter.judge, backend.planner.agent, backend.charter.agent, backend.reporter.agent,
+        backend.tagger.agent]
+  BEDROCK_REGION:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.retirement.agent, backend.reporter.judge, backend.planner.agent, backend.charter.agent, backend.reporter.agent,
+        backend.tagger.agent]
+  CHARTER_FUNCTION:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.planner.agent]
+  CLERK_JWKS_URL:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.api.main]
+  CORS_ORIGINS:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.api.main]
+  DEFAULT_AWS_REGION:
+    type: env
+    params:
+      caller: [os.environ.get, os.getenv]
+      path: [backend.database.verify_database, backend.database.seed_data, backend.reporter.agent, backend.api.main]
+  ECS_CONTAINER_METADATA_URI:
+    type: env
+    params:
+      caller: [os.environ.get]
+      path: [backend.researcher.server]
+  KUBERNETES_SERVICE_HOST:
+    type: env
+    params:
+      caller: [os.environ.get]
+      path: [backend.researcher.server]
+  LANGFUSE_SECRET_KEY:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.planner.observability, backend.retirement.observability, backend.reporter.observability, backend.charter.observability]
+  MOCK_LAMBDAS:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.planner.agent]
+  OPENAI_API_KEY:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.planner.observability, backend.retirement.observability, backend.reporter.observability, backend.charter.observability]
+  POLYGON_API_KEY:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.planner.prices]
+  POLYGON_PLAN:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.planner.prices]
+  REPORTER_FUNCTION:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.planner.agent]
+  RETIREMENT_FUNCTION:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.planner.agent]
+  SAGEMAKER_ENDPOINT:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.reporter.agent]
+  SQS_QUEUE_URL:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.api.main]
+  TAGGER_FUNCTION:
+    type: env
+    params:
+      caller: [os.getenv]
+      path: [backend.planner.agent]
+
+files:
+  .env.local:
+    type: literal
+    actions: [read]
+    params:
+      caller: [build_frontend]
+      path: [frontend_dir]
+  .env.production:
+    type: literal
+    actions: [read]
+    params:
+      caller: [build_frontend]
+      path: [frontend_dir]
+  .env.production.local:
+    type: literal
+    actions: [read]
+    params:
+      caller: [build_frontend]
+      path: [frontend_dir]
+  .terraform:
+    type: literal
+    actions: [read]
+    params:
+      caller: [deploy_terraform]
+      path: [terraform_dir]
+  /.dockerenv:
+    type: literal
+    actions: [read]
+    params:
+      caller: [create_playwright_mcp_server, health]
+  /root/.cache/ms-playwright/chromium-*/chrome-linux:
+    type: pattern
+    actions: [read]
+    params:
+      patterns: [chrome]
+      caller: [create_playwright_mcp_server]
+  /run/.containerenv:
+    type: literal
+    actions: [read]
+    params:
+      caller: [health]
+
+processes:
+  uv:
+    type: shell
+    actions: [exec]
+    args: [[run, run_migrations.py], [run, seed_data.py]]
+    params:
+      caller: [subprocess.run]
+      shell: ["False", "False"]
